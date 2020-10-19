@@ -7,3 +7,5 @@ data/
 dataset/
 */__pycache__/
 pretrained_words_vectors/
+*.pptx
+*.png
