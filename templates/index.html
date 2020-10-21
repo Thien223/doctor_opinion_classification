@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>소견분석</title>
+    <!-- <meta http-equiv="refresh" content="3600"> -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="static/css/Custom.css"/>
+    <script src="static/js/jquery-1.12.4.js"></script>
+    <script src="static/js/jquery-ui.js"></script>
+    <script src="static/js/setOperations.js"></script>
+    <script>
+        String.prototype.includes = function (str) {
+            var returnValue = false;
+    
+            if (this.indexOf(str) !== -1) {
+                returnValue = true;
+            }
+    
+            return returnValue;
+        };
+        Array.prototype.indexOfDate = function(date){
+            for (var i = 0; i < this.length; i++){
+                if (+this[i] === +date) return i;
+            };
+            return -1;
+        };
+
+
+        $(function(){
+        $('#btn-form-submit').click(function(){
+            
+            $.ajax({
+                url: '/analysis',
+                data: $('form').serialize(),
+                type: 'POST',
+                success: function(response){
+                    /////////// successfully calculated/////////////////
+                    data = JSON.parse(response);
+                    index_words=data.index_words;
+                    name_words=data.name_words;
+                    code_words = data.code_words
+                    opinions_sub_opinions=data.opinions_sub_opinions;
+                    sub_opinions_keywords=data.sub_opinions_keywords;
+                    
+                    //document.getElementById("txt-list-opinions").innerHTML = opinions_sub_opinions
+
+                    document.getElementById("txt-list-keywords").innerHTML =""
+                    document.getElementById("txt-list-opinions").innerHTML=""
+                    document.getElementById("slt-index-words").innerHTML = ""
+                    document.getElementById("slt-name-words").innerHTML =""
+                    document.getElementById("slt-dease-code").innerHTML = ""
+
+                    for(i=1;i<=opinions_sub_opinions.length;i++){
+                        temp = "<b>소견 "+ i +":</b> " + opinions_sub_opinions[i-1] +"<br>"
+                        document.getElementById("txt-list-opinions").innerHTML += temp
+                    }
+
+                    for(i=1;i<=sub_opinions_keywords.length;i++){
+                        temp = "<b>소견 "+ i +":</b> " + sub_opinions_keywords[i-1] +"<br>"
+                        document.getElementById("txt-list-keywords").innerHTML += temp
+                    }
+
+                    for(i=1;i<=index_words.length;i++){
+                        document.getElementById("slt-index-words").innerHTML += "<li>- "+index_words[i-1]+"</li>"
+                    }
+
+                    for(i=1;i<=name_words.length;i++){
+                        document.getElementById("slt-name-words").innerHTML += "<li>- "+name_words[i-1]+"</li>"
+                    }
+
+
+                    for(i=1;i<=code_words.length;i++){
+                        document.getElementById("slt-dease-code").innerHTML += "<li>- "+code_words[i-1]+"</li>"
+                    }
+
+
+                    console.log(index_words)
+                    console.log(name_words)
+                    console.log(code_words)
+                    console.log(opinions_sub_opinions)
+                    console.log(sub_opinions_keywords)
+                },
+                error: function(error){
+                    console.log(error)
+                }
+            });
+            
+
+        });
+    });
+    </script>
+	<!-- <script src="static/highcharts_modules/jquery.min.js"></script>
+	<script src="static/highcharts_modules/highcharts.js"></script>
+	<script src="static/highcharts_modules/highcharts-more.js"></script>
+	<script src="static/highcharts_modules/data.js"></script>
+	<script src="static/highcharts_modules/series-label.js"></script>
+	<script src="static/highcharts_modules/export-data.js"></script>
+	<script src="static/highcharts_modules/exporting.js"></script>
+	<script src="static/highcharts_modules/es6-promise.min.js" integrity="sha256-45YA33UQCDcJsntBst2bhka2t/LBNHP7RNvpllHPkQ0=" crossorigin="anonymous"></script>
+    <script src="static/highcharts_modules/es6-promise.auto.min.js" integrity="sha256-OI3N9zCKabDov2rZFzl8lJUXCcP7EmsGcGoP6DMXQCo=" crossorigin="anonymous"></script>
+	<script src="static/highcharts_modules/fetch.min.js" integrity="sha256-eOUokb/RjDw7kS+vDwbatNrLN8BIvvEhlLM5yogcDIo=" crossorigin="anonymous"></script>
+	<script src="static/highcharts_modules/d3-dsv.v1.min.js"></script>
+    <script src="static/highcharts_modules/d3-fetch.v1.min.js"></script> -->
+</head>
+<body>
+    <div id="wrapper_main">
+        <div id="left-wrapper" style="display: block;">
+            <div id="div-inputs">
+                <form role="form" id="form" name="input_form" method="POST" enctype="multipart/form-data">
+                    <div>
+                        <label style="margin-left: 100px;">종합 검진소견</label>
+                    </div>
+                    <div class="txt-area" id="div-form">
+                        <textarea rows="15" cols="60" name="opinions" id="txt-are-opinions" style="font-size: 19px;"></textarea>
+                    </div>
+                    <div id="btn-submit">
+                        <button type="button" name="submit" id="btn-form-submit">분석</button>
+                    </div>
+                    <div class="lstbox-wrapper">
+                        <div style="margin-left: 100px;">
+                            <label>키워드</label>
+                        </div>
+                        <div id="div-keywords" style="float: left;">
+                            <div id="txt-list-keywords"><span>aa&nbsp;aa&nbsp;aa&nbsp;aa&nbsp;aa</span></div>
+                        </div>
+                    </div>
+                </form>       
+            </div>
+            
+            
+            
+        </div>
+
+        <div id="right-wrapper">
+            
+            <div>
+                <div>
+                    <label>분리 된 소견 (다시 검진 필요)</label>
+                </div>
+                <div class="txt-area" id="div-opinions" style="float: left;">
+                    <div id="txt-list-opinions"> opinions</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="lstbox-wrapper">
+                    <div>
+                        <label>색인어</label>
+                    </div>
+                    <div class="div-list" id="div-index-words" style="float: left;">
+
+                        <ul name="index-words" id="slt-index-words" class="slt-words">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="lstbox-wrapper">
+                    <div>
+                        <label>질환명</label>
+                    </div>
+                    <div class="div-list" id="div-name-words" style="float: left;">
+                        <ul name="name-words" id="slt-name-words" class="slt-words">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="lstbox-wrapper">
+                    <div>
+                        <label>질환코드</label>
+                    </div>
+                    <div class="div-list" id="div-dease-code" style="float: left;">
+                        <ul name="name-words" id="slt-dease-code" class="slt-words">
+                        </ul>
+                    </div>
+                </div>
+            <div>
+        </div>    
+            
+
+            
+        </div>
+    </div>
+
+</body>

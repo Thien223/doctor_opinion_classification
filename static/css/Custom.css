@@ -1,0 +1,46 @@
+/* CSS reset */
+/* html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: baseline;} */
+ol, ul {list-style: none;}
+/* tables still need 'cellspacing="0"' in the markup */
+/* table {border-collapse: separate;border-spacing: 0;} */
+caption, th, td {text-align: left;font-weight: normal;}
+
+/*global setting*/
+*{margin:0;padding:0;color:#5c6873}
+body {vertical-align: middle;background-color:rgb(243, 251, 253);line-height: 1.608;margin:0;padding:0;font-family: Batang;width: 100vw;  position: relative;  left: 50%;  right: 50%;  margin-left: -50vw;  margin-right: -50vw; }
+/* table{border-collapse: collapse;width:100%} */
+/* table, thead, tbody, tr, td{border: 1px solid white; padding:3px} */
+/* div{display:block; float:left} */
+/* select{color:#FEAE3C;  border:none;height:100%; width:100%; } */
+input, .label-input{font-family:Batang; border: none;color:rgb(255, 255, 255);height: 100%;font-weight: bold}
+/* hr {border: 0;margin-top:1px;height: 1px;background: #152845;background-image: -webkit-linear-gradient(left, #152845, #ffffff, #152845);background-image: -moz-linear-gradient(left, #152845, #ffffff, #152845);background-image: -ms-linear-gradient(left, #152845, #ffffff, #152845);background-image: -o-linear-gradient(left, #152845, #fff, #152845);} */
+textarea{resize: none; float: left; margin-left: 20px;margin-bottom: 2px;}
+/*classified elements class setting*/
+div{border-radius: 20px;}
+.slt-words{width: 300px; height: 220px;padding: 10px;}
+
+.lstbox-wrapper{width: inherit; height: auto;float: left;}
+
+label{font-size: large; font-weight: bold;font-family: Georgia, 'Times New Roman', Times, serif;}
+.div-list{background-color:white; margin-left: 20px; margin-top: 2px; height: auto; border: 1px solid;}
+.lbl{font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-left: 20px;}
+#btn-form-submit{background-color: rgba(62,139,225,0.8); transition: background-color 0.2s;color: #fff;width: 620px; height:35px; float: left;margin-top: 2px; margin-left: 20px; border: 1px white solid; margin-bottom: 12px;}
+
+#div-inputs{display: block;float: left; width:90%; height: 800px; background-color: rgb(243, 251, 253);}
+
+#txt-list-opinions{display: inline-block;margin-left: 20px; min-width: 950px; max-width: 1000px; min-height: 360px; background-color: white;border: 1px solid;padding: 10px;}
+#txt-list-keywords{display: inline-block;margin-left: 20px; min-width: 600px; max-width: 600px; min-height: 220px; background-color: white;border: 1px solid;padding: 10px;}
+#left-wrapper{display: block;float: left; width:40%; height: 1000px; background-color: rgb(243, 251, 253); }
+#right-wrapper{display: block;float: left; width:60%; height: 1000px; background-color: rgb(243, 251, 253);}
+
+
+
+
+#wrapper-main{vertical-align: middle; text-align: center; margin: 0px 20px;min-width: 1825px; height:100%;background-color: #f0f3f5;; color: rgb(71, 68, 68);float:left;font-family: sans-serif;width: 100%;  position: relative;left: 50%;right: 50%;margin-left: -50vw;margin-right: -50vw; }
