@@ -8,7 +8,7 @@ hparams = get_hparams()
 def data_generator(opinions_sequences, labels_sequences, batch_size=8):
 	from torch.utils.data import TensorDataset, DataLoader
 	input_sequence = torch.tensor(opinions_sequences, dtype=torch.long)
-	output_sequence = torch.tensor(labels_sequences, dtype=torch.long)
+	output_sequence = torch.tensor(labels_sequences, dtype=torch.float)
 	dataset = TensorDataset(input_sequence, output_sequence)
 	dataloader = DataLoader(dataset, batch_size=batch_size)
 	return dataloader

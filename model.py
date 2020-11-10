@@ -65,27 +65,26 @@ class Classifier(torch.nn.Module):
 		self.linear = LinearNorm(in_dim=65456, out_dim=6)
 		self.conv1d = ConvNorm(in_channels=100, out_channels=8, kernel_size=3, stride=1, w_init_gain='relu')
 		self.softmax = torch.nn.Softmax(dim=1)
-		self.embedding = torch.nn.Embedding(embedding_dim=512, num_embeddings=words_count)
+		self.embedding = torch.nn.Embedding(embedding_dim=512, num_embeddings=words_count+10)
 		self.batch_norm = torch.nn.BatchNorm1d(hparams.linear_layer_input_dim)
 
 	def forward(self, inputs):
-		print(inputs)
-		embedded = self.embedding(inputs)
+		try:
+			embedded = self.embedding(inputs)
+		except Exception as e:
+			print(e)
+			print(inputs.shape)
+			print(self.embedding)
 		conv1d_out = F.dropout(F.relu(self.batch_norm(self.conv1d(embedded)), inplace=True),0.5)
-		print(f'model.py 72 conv1d_out shape {conv1d_out.shape}')
 
 		incept_1_out = F.dropout(F.relu(self.batch_norm(self.inception(conv1d_out)), inplace=True),0.5)
-		print(f'model.py 72 incept_1_out shape {incept_1_out.shape}')
 
 		incept_2_out = F.dropout(F.relu(self.batch_norm(self.inception(incept_1_out)), inplace=True),0.5)
-		print(f'model.py 72 incept_2_out shape {incept_2_out.shape}')
 		incept_2_out = incept_2_out.view(incept_2_out.size(0), -1)
 
 		linear_out = self.linear(incept_2_out)
-		print(f'model.py 72 linear_out shape {linear_out.shape}')
 
 		# output = self.softmax(linear_out)
-		print(linear_out)
 		return linear_out
 
 # inputs = torch.zeros(torch.Size((32,100)), dtype=torch.long)
