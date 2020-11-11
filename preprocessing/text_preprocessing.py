@@ -1,4 +1,5 @@
-
+import numpy as np
+import pickle
 import torch
 import re
 from tqdm import tqdm
@@ -40,7 +41,7 @@ def hangul_preprocessing(doctor_opinions, remove_stopwords=False, stopwords=None
 	return doctor_opinions_cleaned
 
 
-def words_transform(opinionslist, labelslist):
+def words_transform(opinionslist, labelslist,tokenizer=None):
 	'''
 	transform words in  to sequences
 	:param wordslist: list of all processed opinions
@@ -51,20 +52,24 @@ def words_transform(opinionslist, labelslist):
 	max_input_sequence_length = hparams.opinions_max_length
 	max_output_sequence_length = hparams.label_max_length
 	wordslist = opinionslist + labelslist
-	tokenizer = Tokenizer()
-	### train tokenizer
-	tokenizer.fit_on_texts(wordslist)
+
+	if tokenizer is None:
+		tokenizer = Tokenizer()
+		### train tokenizer
+		tokenizer.fit_on_texts(wordslist)
 	opinions_sequences = tokenizer.texts_to_sequences(opinionslist)
 	labels_sequences = tokenizer.texts_to_sequences(labelslist)
 	word_counts = tokenizer.word_counts
 
 	opinions_sequences = pad_sequences(opinions_sequences, maxlen=max_input_sequence_length, padding='post')
 	labels_sequences = pad_sequences(labels_sequences, maxlen=max_output_sequence_length, padding='post')
+	with open('models/tokenizer.pickle', 'wb') as handle:
+		pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 	return opinions_sequences, labels_sequences, word_counts
 
 
-def load_data(filepath=f'dataset/opinions.xlsx'):
+def load_data(filepath=f'dataset/opinions.xlsx', tokenizer=None):
 	doctor_opinions = pd.read_excel(filepath)
 	doctor_opinions.drop_duplicates(keep="first", inplace=True)
 
@@ -85,7 +90,6 @@ def load_data(filepath=f'dataset/opinions.xlsx'):
 	opinions = list(doctor_opinions_df['소견'])
 	labels = list(doctor_opinions_df['처방'])
 
-
 	cleaned_opinions = []
 	cleaned_labels = []
 	for opinion, label in tqdm(zip(opinions, labels)):
@@ -93,6 +97,16 @@ def load_data(filepath=f'dataset/opinions.xlsx'):
 		cleaned_label = hangul_preprocessing(doctor_opinions=label.strip())
 		cleaned_opinions.append(cleaned_opinion)
 		cleaned_labels.append(cleaned_label)
-	opinions_sequences, labels_sequences, words_count = words_transform(cleaned_opinions, cleaned_labels)
+	opinions_sequences, labels_sequences, words = words_transform(opinionslist=cleaned_opinions,labelslist= cleaned_labels, tokenizer=tokenizer)
+
+
+	label_class_sequences = np.unique(labels_sequences, axis=0)
+	labels_text = []
+	for c in label_class_sequences:
+		idxs = int(np.where(np.all(labels_sequences == c, axis=1))[0][0])
+		labels_text.append(labels[idxs])
+
+
+
 	dataloader = data_generator(opinions_sequences, labels_sequences, batch_size=hparams.batch_size)
-	return dataloader, words_count
+	return dataloader, len(words), labels_text, label_class_sequences

@@ -1,6 +1,9 @@
 dataset/
 data/
+checkpoint/
+runs/
 venv/
 .idea/
 *.png
+*.xlsx
 .env
