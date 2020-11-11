@@ -2,13 +2,44 @@ from model import Classifier
 import torch
 from hparams import get_hparams
 hparams = get_hparams()
-from preprocessing.text_preprocessing import load_data
-from torch.nn import functional as F
+from preprocessing.text_preprocessing import load_train_data, load_val_data
 import os
 import pickle
+import json
+import numpy as np
+def load_labels():
+	f = open('models/labels.txt', 'r')
+	labels= f.read().replace('\'','\"')
+	labels=json.loads(labels)
+	f.close()
+	label_texts = []
+	label_sequence=[]
+	for k,v in labels.items():
+		label_texts.append(k)
+		label_sequence.append(v)
+	return label_texts, label_sequence
+
+def validation(valloader,model_path):
+	labels_text, label_class_sequences = load_labels()
+	model = Classifier(hparams=hparams, words_count=words_count)
+	assert os.path.isfile(model_path),"model checkpoint must be a file"
+	model, optimizer, learning_rate, iteration = load_checkpoint(model_path, model)
+	model.eval()
+	count=0
+	with torch.no_grad():
+		for i,(inputs,labels) in enumerate(valloader):
+			pred_outputs = model(inputs)
+			pred_label = get_pred_label(labels_text, np.asarray(label_class_sequences), pred_outputs[0])
+			true_label = get_pred_label(labels_text, np.asarray(label_class_sequences), labels[0])
+			if pred_label == true_label:
+				count+=1
+			print(f'--- val: pred: {pred_label} -- true: {true_label}---')
+
+	print(f'--- validation accuracy: {(count/(i+1))*100}%')
 
 
-def train(dataloader,words_count,labels_text, label_class_sequences,model_path=None):
+def train(dataloader,words_count,model_path=None):
+	labels_text, label_class_sequences = load_labels()
 	from random import randint
 	model = Classifier(hparams=hparams, words_count=words_count)
 	if model_path is None:
@@ -30,8 +61,8 @@ def train(dataloader,words_count,labels_text, label_class_sequences,model_path=N
 			print(f'loss --- {loss}')
 			rand = randint(0,50)
 			if rand==5:
-				pred_label = get_pred_label(labels_text, label_class_sequences, pred_outputs[0])
-				true_label = get_pred_label(labels_text, label_class_sequences, labels[0])
+				pred_label = get_pred_label(labels_text, np.asarray(label_class_sequences), pred_outputs[0])
+				true_label = get_pred_label(labels_text, np.asarray(label_class_sequences), labels[0])
 				print(f'pred_label {pred_label} ---- true_label {true_label}')
 
 			if iteration % 5000 == 0:
@@ -46,12 +77,16 @@ def train(dataloader,words_count,labels_text, label_class_sequences,model_path=N
 def get_pred_label(labels_text, label_class_sequences, pred_label):
 	from torch.nn import functional as F
 	import numpy as np
+	## convert to torch tensor to use with F.mse_loss
 	label_class_sequences = torch.from_numpy(label_class_sequences)
 	mse_losses = []
+	### find the loss of pred sequence with each class sequence
 	for i, label in enumerate(label_class_sequences):
 		mse_loss = F.mse_loss(label, pred_label)
 		mse_losses.append(mse_loss)
+	### take the minimum mse loss as predicted sequence
 	matched_sequence = label_class_sequences[mse_losses.index(min(mse_losses))]
+	### take the equivalent labels text as predicted label
 	matched_label = labels_text[int(np.where(np.all(label_class_sequences.data.cpu().numpy() == matched_sequence.data.cpu().numpy(), axis=1))[0])]
 	return matched_label
 
@@ -72,9 +107,14 @@ if __name__=='__main__':
 	with open('models/tokenizer.pickle', 'rb') as handle:
 		tokenizer = pickle.load(handle)
 
-	dataloader, words_count, labels_text, label_class_sequences = load_data(filepath=f'dataset/opinions.xlsx', tokenizer=None)
+	#### training
+	# dataloader, words_count = load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None)
+	# train(dataloader=dataloader,words_count=words_count)
 
-	train(dataloader, words_count, labels_text =labels_text, label_class_sequences=label_class_sequences, model_path=f'checkpoint/10000_loss_0.07650874555110931')
+	#### validation
+	valloader, words_count = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
+
+	validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687')
 
 #
 # import torch

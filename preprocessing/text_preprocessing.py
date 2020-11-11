@@ -69,23 +69,24 @@ def words_transform(opinionslist, labelslist,tokenizer=None):
 	return opinions_sequences, labels_sequences, word_counts
 
 
-def load_data(filepath=f'dataset/opinions.xlsx', tokenizer=None):
-	doctor_opinions = pd.read_excel(filepath)
-	doctor_opinions.drop_duplicates(keep="first", inplace=True)
-
+def load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None):
+	doctor_opinions_df = pd.read_excel(filepath)
+	doctor_opinions_df.drop_duplicates(keep="first", inplace=True)
+	# doctor_opinions_df.to_excel('dataset/opinions_.xlsx')
 	### make dataset balanced
-	df_1 = doctor_opinions.loc[doctor_opinions['처방']=='상복부초음파']
-	df_2 = doctor_opinions.loc[doctor_opinions['처방']=='흉부촬영(PA)']
-	df_3 = doctor_opinions.loc[doctor_opinions['처방']=='위내시경']
+	df_1 = doctor_opinions_df.loc[doctor_opinions_df['처방']=='상복부초음파']
+	df_2 = doctor_opinions_df.loc[doctor_opinions_df['처방']=='흉부촬영(PA)']
+	df_3 = doctor_opinions_df.loc[doctor_opinions_df['처방']=='위내시경']
 
 	max_count = min(len(df_1), len(df_2), len(df_3))
 	df_1=df_1.iloc[:max_count]
 	df_2=df_2.iloc[:max_count]
 	df_3=df_3.iloc[:max_count]
 
+
 	doctor_opinions_df = df_1.append(df_2).append(df_3)
 
-	### random shufling
+	### random shuffling
 	doctor_opinions_df = doctor_opinions_df.sample(frac=1)
 	opinions = list(doctor_opinions_df['소견'])
 	labels = list(doctor_opinions_df['처방'])
@@ -107,6 +108,34 @@ def load_data(filepath=f'dataset/opinions.xlsx', tokenizer=None):
 		labels_text.append(labels[idxs])
 
 
+	### save labels_text and sequence for futher using
+	labels_dict = dict(zip(labels_text, label_class_sequences.tolist()))
+	f = open('models/labels.txt','w')
+	f.write(str(labels_dict))
+	f.close()
+	dataloader = data_generator(opinions_sequences, labels_sequences, batch_size=hparams.batch_size)
+	return dataloader, len(words)
+
+
+
+def load_val_data(filepath, tokenizer):
+	doctor_opinions_df = pd.read_excel(filepath)
+	doctor_opinions_df.drop_duplicates(keep="first", inplace=True)
+	# doctor_opinions_df.to_excel('dataset/opinions_.xlsx')
+
+	### random shuffling
+	doctor_opinions_df = doctor_opinions_df.sample(frac=1)
+	opinions = list(doctor_opinions_df['소견'])
+	labels = list(doctor_opinions_df['처방'])
+
+	cleaned_opinions = []
+	cleaned_labels = []
+	for opinion, label in tqdm(zip(opinions, labels)):
+		cleaned_opinion = hangul_preprocessing(doctor_opinions=opinion.replace('\n','').strip())
+		cleaned_label = hangul_preprocessing(doctor_opinions=label.strip())
+		cleaned_opinions.append(cleaned_opinion)
+		cleaned_labels.append(cleaned_label)
+	opinions_sequences, labels_sequences, words = words_transform(opinionslist=cleaned_opinions,labelslist= cleaned_labels, tokenizer=tokenizer)
 
 	dataloader = data_generator(opinions_sequences, labels_sequences, batch_size=hparams.batch_size)
-	return dataloader, len(words), labels_text, label_class_sequences
+	return dataloader, len(words)
