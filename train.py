@@ -102,14 +102,18 @@ def load_checkpoint(checkpoint_path, model):
 	print("Loaded checkpoint '{}' from iteration {}".format(checkpoint_path, iteration))
 	return model, optimizer, learning_rate, iteration
 
+
+
 if __name__=='__main__':
-	# loading
-	with open('models/tokenizer.pickle', 'rb') as handle:
-		tokenizer = pickle.load(handle)
 
 	#### training
 	# dataloader, words_count = load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None)
 	# train(dataloader=dataloader,words_count=words_count)
+
+	# loading tokenizer
+	with open('models/tokenizer.pickle', 'rb') as handle:
+		tokenizer = pickle.load(handle)
+
 
 	#### validation
 	valloader, words_count = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
