@@ -41,19 +41,23 @@ class Inception(torch.nn.Module):
 		self.conv1d_10 = ConvNorm(in_channels=32, out_channels=hparams.linear_layer_input_dim, kernel_size=5, stride=1)
 		self.conv1d_20 = ConvNorm(in_channels=32, out_channels=hparams.linear_layer_input_dim, kernel_size=11, stride=1)
 		self.conv1d_40 = ConvNorm(in_channels=32, out_channels=hparams.linear_layer_input_dim, kernel_size=21, stride=1)
+		#### residual_conv and bottleneck convolution must match the inputs shape
 		self.bottleneck = ConvNorm(in_channels=8, out_channels=32, kernel_size=1, stride=1)
-		self.conv1d_1 = ConvNorm(in_channels=8, out_channels=hparams.linear_layer_input_dim, kernel_size=1, stride=1)
+		self.residual_conv = ConvNorm(in_channels=8, out_channels=hparams.linear_layer_input_dim, kernel_size=1, stride=1)
 		self.max_pooling = torch.nn.MaxPool1d(kernel_size=3, stride=1)
 
 	def forward(self, inputs):
+		print(f'inception input shape: {inputs.shape}')
 		pool_out = self.max_pooling(inputs)
-		residual_out = self.conv1d_1(pool_out)
 
+		residual_out = self.residual_conv(pool_out)
 		bottleneck_output = self.bottleneck(inputs)
+
 		conv_10_out = self.conv1d_10(bottleneck_output)
 		conv_20_out = self.conv1d_20(bottleneck_output)
 		conv_40_out = self.conv1d_40(bottleneck_output)
 		conv_outouts = torch.cat((residual_out,conv_10_out,conv_20_out,conv_40_out), dim=2)
+		print(f'inception conv_outouts shape: {conv_outouts.shape}')
 		return conv_outouts
 
 
