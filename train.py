@@ -68,7 +68,9 @@ def train(dataloader,words_count,model_path=None):
 				print(f'pred_label {pred_label} ---- true_label {true_label}')
 
 			if iteration % 5000 == 0:
-				filepath=f'checkpoint/{iteration}_loss_{loss}'
+				checkpoint_path='checkpoint'
+				os.makedirs(checkpoint_path, exist_ok=True)
+				filepath=os.path.join(checkpoint_path,f'{iteration}_loss_{loss}')
 				torch.save({'iteration': iteration,
 							'state_dict': model.state_dict(),
 							'optimizer': optimizer.state_dict(),

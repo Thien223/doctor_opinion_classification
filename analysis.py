@@ -74,8 +74,8 @@ def extract_index_words(keywords):
 	corresponding_keywords_index=[]
 	# corresponding_keywords_name=[]
 	### get 색인어
-	index_words_1 = get_index_words('index_words.txt')
-	index_words_2 = get_index_words('index_words_.txt')
+	index_words_1 = get_index_words('dataset/index_words.txt')
+	index_words_2 = get_index_words('dataset/index_words_.txt')
 	bleu_similar_scores_1 = np.zeros(shape=(len(index_words_1),len(keywords)))
 	# bleu_similar_scores_2 = np.zeros(shape=(len(index_words_2),len(keywords)))
 	cosine_similar_scores = np.zeros(shape=(len(index_words_1),len(keywords)))

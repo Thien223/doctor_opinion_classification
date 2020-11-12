@@ -7,7 +7,7 @@ def get_index_words():
 	:return: list of 색인어
 	'''
 	index_words = []
-	with open('index_words.txt', 'r') as f:
+	with open('dataset/index_words.txt', 'r') as f:
 		for line in f.readlines():
 			index_words.append(line.strip())
 	return index_words
