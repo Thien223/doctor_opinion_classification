@@ -92,7 +92,6 @@ def get_pred_label(labels_text, label_class_sequences, pred_label):
 
 def load_checkpoint(checkpoint_path, model):
 	assert os.path.isfile(checkpoint_path)
-	print("Loading checkpoint '{}'".format(checkpoint_path))
 	checkpoint_dict = torch.load(checkpoint_path)
 	model.load_state_dict(checkpoint_dict['state_dict'])
 	learning_rate = checkpoint_dict['learning_rate']

@@ -7,6 +7,17 @@ import os
 import pickle
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 import torch, numpy as np
+import pandas as pd
+import argparse
+
+def get_args():
+	args = argparse.ArgumentParser()
+	args.add_argument('--opinion', type=str, default=None, help="text of opinion to classification")
+	args.add_argument('--opinions_path',type=str,default=None, help="path to opinions file")
+	args.add_argument('--tokenizer',type=str, default='models/tokenizer.pickle', help="path to tokenizer model")
+	args.add_argument('--checkpoint',type=str, default='checkpoint/15000_loss_0.045780032873153687', help="path to classification model")
+	return args.parse_args()
+
 
 
 def inference(model, opinion, tokenizer):
@@ -20,26 +31,48 @@ def inference(model, opinion, tokenizer):
 	with torch.no_grad():
 		pred_outputs = model(opinions_sequences)
 		pred_label = get_pred_label(labels_text, np.asarray(label_class_sequences), pred_outputs[0])
-		print(f'predicted label: {pred_label}')
-
+		print(f'=========')
+		print(f'입력 소견: {opinion}')
+		print(f'예측 레이블: {pred_label}')
+		print(f'=========\n')
+	return pred_label
 
 
 if __name__=='__main__':
+	#
+	args = get_args()
+	if args.opinions_path is None:
+		assert args.opinion is not None, "you must pass either path to opinions file or opinion text to classify.."
 
-	opinion='''좌측 신장에 2.1`cm 크기의 단순 낭종(simple cyst)이 1개 있으며
-	임상적 의미가 없는 병변임.
-	담도 확장 없으며 간, 담낭, 우측 신장, 췌장, 비장에 특이소견 안보임.
-	 
-	결론 : 좌측 신장 낭종.
-	
-	'''
-	token_path='models/tokenizer.pickle'
-	model_path='checkpoint/15000_loss_0.045780032873153687'
-
+	opinion=args.opinion
+	opinions_path=args.opinions_path
+	token_path = args.tokenizer
+	model_path = args.checkpoint
+	assert os.path.isfile(token_path), "model checkpoint must be a file"
 	with open(token_path, 'rb') as handle:
 		tokenizer = pickle.load(handle)
 
-	model = Classifier(hparams=hparams, words_count=len(tokenizer.word_counts))
-	assert os.path.isfile(model_path),"model checkpoint must be a file"
-	model, optimizer, learning_rate, iteration = load_checkpoint(model_path, model)
-	inference(model_path=model_path, opinion=opinion, tokenizer=tokenizer)
+
+	if args.opinions_path is not None:
+
+		#### classifying multi opinions from file
+		model = Classifier(hparams=hparams, words_count=len(tokenizer.word_counts))
+		assert os.path.isfile(model_path), "model checkpoint must be a file"
+		model, optimizer, learning_rate, iteration = load_checkpoint(model_path, model)
+
+		opinions_df = pd.read_excel(opinions_path)
+		opinions = list(opinions_df['소견'])
+		results = [[]]
+		for i,opinion in enumerate(opinions):
+			pred_label = inference(model=model, opinion=opinion, tokenizer=tokenizer)
+			results.append([opinion,pred_label])
+		result_df = pd.DataFrame(results, columns={'예측 레이블','소견'})
+		result_df.to_excel("result.xlsx")
+
+	else:
+		# ####### 1 opinion classification at a time
+		model = Classifier(hparams=hparams, words_count=len(tokenizer.word_counts))
+		assert os.path.isfile(model_path),"model checkpoint must be a file"
+		model, optimizer, learning_rate, iteration = load_checkpoint(model_path, model)
+		inference(model=model, opinion=opinion, tokenizer=tokenizer)
+
