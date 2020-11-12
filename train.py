@@ -7,6 +7,8 @@ import os
 import pickle
 import json
 import numpy as np
+import argparse
+
 def load_labels():
 	f = open('models/labels.txt', 'r')
 	labels= f.read().replace('\'','\"')
@@ -103,21 +105,31 @@ def load_checkpoint(checkpoint_path, model):
 
 
 
+
+def get_args():
+	args = argparse.ArgumentParser()
+	args.add_argument('--mode', type=str, default="train", choices=['train','val','validation'], help="set mode for running")
+	return args.parse_args()
+
+
+
 if __name__=='__main__':
+	args = get_args()
 
-	#### training
-	# dataloader, words_count = load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None)
-	# train(dataloader=dataloader,words_count=words_count)
+	if args.mode=='train':
+		### training
+		dataloader, words_count = load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None)
+		train(dataloader=dataloader,words_count=words_count)
+	else:
+		# loading tokenizer
+		with open('models/tokenizer.pickle', 'rb') as handle:
+			tokenizer = pickle.load(handle)
 
-	# loading tokenizer
-	with open('models/tokenizer.pickle', 'rb') as handle:
-		tokenizer = pickle.load(handle)
 
+		#### validation
+		valloader, _ = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
 
-	#### validation
-	valloader, words_count = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
-
-	validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687')
+		validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687')
 
 #
 # import torch

@@ -23,6 +23,9 @@
 
 
 ## 사용 법:
+#### 가상 환경 설치
+`pip install -r requirements.txt`
+
 #### 예측 1 소견:
 - 모델 checkpoint 및 tokenizer 다운로드 받음
 - 다음 명령 실행
