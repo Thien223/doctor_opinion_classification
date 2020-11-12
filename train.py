@@ -45,7 +45,7 @@ def train(dataloader,words_count,model_path=None):
 	from random import randint
 	model = Classifier(hparams=hparams, words_count=words_count)
 	if model_path is None:
-		optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
+		optimizer = torch.optim.Adam(model.parameters(), lr=0.0003)
 		iteration = 1
 	else:
 		model, optimizer, learning_rate, iteration = load_checkpoint(model_path, model)
@@ -74,7 +74,7 @@ def train(dataloader,words_count,model_path=None):
 				torch.save({'iteration': iteration,
 							'state_dict': model.state_dict(),
 							'optimizer': optimizer.state_dict(),
-							'learning_rate': 0.003}, filepath)
+							'learning_rate': 0.0003}, filepath)
 
 			iteration += 1
 
