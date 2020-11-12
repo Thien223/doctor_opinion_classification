@@ -21,7 +21,7 @@ def load_labels():
 		label_sequence.append(v)
 	return label_texts, label_sequence
 
-def validation(valloader,model_path):
+def validation(valloader,model_path, words_count):
 	labels_text, label_class_sequences = load_labels()
 	model = Classifier(hparams=hparams, words_count=words_count)
 	assert os.path.isfile(model_path),"model checkpoint must be a file"
@@ -127,11 +127,11 @@ if __name__=='__main__':
 		with open('models/tokenizer.pickle', 'rb') as handle:
 			tokenizer = pickle.load(handle)
 
-
+		words_count=len(tokenizer.word_counts)
 		#### validation
 		valloader, _ = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
 
-		validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687')
+		validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687', words_count=words_count)
 
 #
 # import torch

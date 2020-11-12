@@ -97,3 +97,15 @@ class Classifier(torch.nn.Module):
 # hparams = get_hparams()
 # classifier = Classifier(hparams=hparams, words_count=932)
 # classifier(inputs)
+
+
+import torch
+lstm = torch.nn.LSTM(input_size=128, num_layers=32, hidden_size=1, batch_first=True, bidirectional=True)
+
+inputs = torch.zeros(torch.Size((32,128,450))).transpose(1,2)
+
+out = lstm(inputs)
+print(inputs.shape)
+print(out[0].shape)
+
+1440*3
