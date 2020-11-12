@@ -111,27 +111,30 @@ def load_checkpoint(checkpoint_path, model):
 def get_args():
 	args = argparse.ArgumentParser()
 	args.add_argument('--mode', type=str, default="train", choices=['train','val','validation'], help="set mode for running")
+	args.add_argument('--checkpoint', type=str, default=None, help="checkpoint to resume training/validating")
+	args.add_argument('--val_file', type=str, default=None, help="validation data path")
 	return args.parse_args()
 
 
 
 if __name__=='__main__':
 	args = get_args()
-
+	model_path=args.checkpoint
+	val_path = f'dataset/val.xlsx' if args.val_file is None else args.val_file
 	if args.mode=='train':
 		### training
 		dataloader, words_count = load_train_data(filepath=f'dataset/train.xlsx', tokenizer=None)
-		train(dataloader=dataloader,words_count=words_count)
+		train(dataloader=dataloader,words_count=words_count,model_path=model_path)
 	else:
 		# loading tokenizer
 		with open('models/tokenizer.pickle', 'rb') as handle:
 			tokenizer = pickle.load(handle)
-
+		assert model_path is not None, "checkpoint path is require when running validation model"
+		assert model_path is not None, "checkpoint path is require when running validation model"
 		words_count=len(tokenizer.word_counts)
 		#### validation
-		valloader, _ = load_val_data(filepath=f'dataset/val.xlsx', tokenizer=tokenizer)
-
-		validation(valloader, model_path=f'checkpoint/15000_loss_0.045780032873153687', words_count=words_count)
+		valloader, _ = load_val_data(filepath=val_path, tokenizer=tokenizer)
+		validation(valloader, model_path=model_path, words_count=words_count)
 
 #
 # import torch
