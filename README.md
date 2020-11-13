@@ -25,6 +25,7 @@
 ## 사용 법:
 #### 가상 환경 설치
 `pip install -r requirements.txt`
+- Note: with window, you need install pytorch separately
 
 #### 예측 1 소견:
 - 모델 checkpoint 및 tokenizer 다운로드 받음
